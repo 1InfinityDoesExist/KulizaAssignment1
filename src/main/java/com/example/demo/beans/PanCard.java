@@ -20,7 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import io.swagger.annotations.ApiModelProperty;
 
 @Entity(name = "PanCard")
-@Table(name = "pan_card_detials", uniqueConstraints = { @UniqueConstraint(columnNames = "pan_number") })
+@Table(name = "pan_card_details", uniqueConstraints = { @UniqueConstraint(columnNames = "pan_number") })
 @EntityListeners(AuditingEntityListener.class)
 @TypeDefs({ @TypeDef(name = "PanCardDetailsType", typeClass = PanCardDetailsType.class) })
 public class PanCard extends BaseEntity implements Serializable {
