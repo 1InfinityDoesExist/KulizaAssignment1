@@ -60,6 +60,7 @@ public class SonService {
 
 	public String deleteSonDetails(Long id) {
 		try {
+			System.out.println("hello git testing");
 			sonRepository.deleteSonDetailsById(id);
 			return "SuccessFully Deleted";
 		}catch(final Exception ex) {
@@ -68,6 +69,8 @@ public class SonService {
 		}finally {
 			logger.info("End of deleteSonDetails");
 		}
+		
 	}
+	
 
 }
