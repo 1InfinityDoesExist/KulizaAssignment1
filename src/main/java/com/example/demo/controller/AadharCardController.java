@@ -4,11 +4,16 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,14 +24,16 @@ import com.example.demo.beans.AadharCard;
 import com.example.demo.service.AadharCardService;
 import com.example.demo.service.MapStateToError;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path = "/api/object/aadharCard")
-@Api(value = "/api/object/aadharCard", description = "aadharCard Operations")
+//@Api(value = "/api/object/aadharCard", description = "aadharCard Operations")
 public class AadharCardController {
+
+	private static final Logger logger = LoggerFactory.getLogger(AadharCardController.class);
 
 	@Autowired
 	private AadharCardService aadharCardService;
@@ -34,17 +41,23 @@ public class AadharCardController {
 	@Autowired
 	private MapStateToError mapStateToError;
 
-	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
-	@ResponseBody
+	// @RequestMapping(path = "/create", method = RequestMethod.POST, consumes =
+	// "application/json", produces = "application/json")
+//	@ResponseBody
+	@PostMapping(path = "/create")
 	@ApiOperation(value = "/create", notes = "Create AadharCard Resource", response = AadharCard.class)
 	public ResponseEntity<?> createAadharCardResource(@Valid @RequestBody AadharCard aadharCard,
 			BindingResult bindingResult) {
+		logger.info("************Begening of Creating Resource for AadharCard*************************");
 		ResponseEntity<?> errorMap = mapStateToError.mapStateToError(bindingResult);
 		if (errorMap != null) {
 			return errorMap;
 		}
 		AadharCard aadharCardToDB = aadharCardService.saveAadharCardDetails(aadharCard);
+		System.out.println(aadharCardToDB);
+		logger.info("************End of Creating AadharCard Resource***********************", aadharCardToDB);
 		return new ResponseEntity<AadharCard>(aadharCardToDB, HttpStatus.CREATED);
+
 	}
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
@@ -58,8 +71,10 @@ public class AadharCardController {
 		return new ResponseEntity<List<AadharCard>>(listOfAadharCard, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
-	@ResponseBody
+	// @RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces =
+	// "application/json")
+	// @ResponseBody
+	@GetMapping(path = "/get/{id}")
 	@ApiOperation(value = "/get/", notes = "Retrieve AadharCard Details By ID", response = AadharCard.class)
 	public ResponseEntity<?> getAadharCardDetailsByID(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {

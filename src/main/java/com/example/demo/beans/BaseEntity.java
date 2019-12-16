@@ -44,16 +44,17 @@ public class BaseEntity implements Serializable {
 	@ApiModelProperty(notes = "Modification Date")
 	private LocalDateTime modificationDate;
 
+	// Remember by default Boolean value is null -- primitive boolean value is false
 	@Column(name = "is_deleted")
 	@ApiModelProperty(notes = "Soft Delete")
-	private Boolean isDeleted;
+	private boolean isDeleted;
 
 	public BaseEntity() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public BaseEntity(Long id, LocalDateTime creationDate, LocalDateTime modificationDate, Boolean isDeleted) {
+	public BaseEntity(Long id, LocalDateTime creationDate, LocalDateTime modificationDate, boolean isDeleted) {
 		super();
 		this.id = id;
 		this.creationDate = creationDate;
@@ -85,11 +86,11 @@ public class BaseEntity implements Serializable {
 		this.modificationDate = modificationDate;
 	}
 
-	public Boolean getIsDeleted() {
+	public boolean isDeleted() {
 		return isDeleted;
 	}
 
-	public void setIsDeleted(Boolean isDeleted) {
+	public void setDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
@@ -99,7 +100,7 @@ public class BaseEntity implements Serializable {
 		int result = 1;
 		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((isDeleted == null) ? 0 : isDeleted.hashCode());
+		result = prime * result + (isDeleted ? 1231 : 1237);
 		result = prime * result + ((modificationDate == null) ? 0 : modificationDate.hashCode());
 		return result;
 	}
@@ -123,10 +124,7 @@ public class BaseEntity implements Serializable {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (isDeleted == null) {
-			if (other.isDeleted != null)
-				return false;
-		} else if (!isDeleted.equals(other.isDeleted))
+		if (isDeleted != other.isDeleted)
 			return false;
 		if (modificationDate == null) {
 			if (other.modificationDate != null)

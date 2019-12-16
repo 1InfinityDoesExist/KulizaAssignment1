@@ -15,15 +15,15 @@ import com.example.demo.beans.AadharCard;
 @Repository
 public interface AadharCardRepository extends CrudRepository<AadharCard, Long>, JpaRepository<AadharCard, Long> {
 
-	@Query("Select AadharCard from #{#entityName} AadharCard where deleteFlag = false")
+	@Query("Select AadharCard from #{#entityName} AadharCard where isDeleted = false")
 	public List<AadharCard> getAllAadhar();
 
-	@Query("Select AadharCard from #{#entityName} AadharCard where id=?1 and deleteFlag = false")
+	@Query("Select AadharCard from #{#entityName} AadharCard where id=?1 and isDeleted = false")
 	public AadharCard getAadharCardById(Long id);
 
 	@Transactional
 	@Modifying
-	@Query("Update AadharCard set deleteFlag = true where id=?1")
+	@Query("Update AadharCard set isDeleted = true where id=?1")
 	public void deleteAadharCardById(Long id);
 
 }

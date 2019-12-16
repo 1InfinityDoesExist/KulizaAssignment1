@@ -1,9 +1,8 @@
 package com.example.demo.service;
 
-<<<<<<< HEAD
+
 import org.springframework.stereotype.Service;
 
-=======
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.example.demo.beans.Daughter;
 import com.example.demo.repository.DaughterRepository;
 
->>>>>>> bikey
 @Service
 public class DaughterService {
 

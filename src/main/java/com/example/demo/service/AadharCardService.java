@@ -19,6 +19,7 @@ public class AadharCardService {
 	@Autowired
 	private AadharCardRepository aadharCardRepository;
 
+	
 	public AadharCard saveAadharCardDetails(AadharCard aadharCard) {
 		try {
 			AadharCard aadharCardToDB = aadharCardRepository.save(aadharCard);
