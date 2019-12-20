@@ -11,26 +11,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.beans.AadharCard;
 import com.example.demo.service.AadharCardService;
 import com.example.demo.service.MapStateToError;
+import com.google.gson.Gson;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
 @RestController
 @CrossOrigin
 @RequestMapping(path = "/api/object/aadharCard")
-//@Api(value = "/api/object/aadharCard", description = "aadharCard Operations")
+@Api(value = "AadharCard Operations", description = "AadharCard Operations")
 public class AadharCardController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AadharCardController.class);
@@ -41,11 +42,10 @@ public class AadharCardController {
 	@Autowired
 	private MapStateToError mapStateToError;
 
-	// @RequestMapping(path = "/create", method = RequestMethod.POST, consumes =
-	// "application/json", produces = "application/json")
-//	@ResponseBody
-	@PostMapping(path = "/create")
-	@ApiOperation(value = "/create", notes = "Create AadharCard Resource", response = AadharCard.class)
+	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.CREATED)
+	@ApiOperation(value = "Create AadharCard Resource", notes = "Its Just To Store AadharCard Resource In Database", response = AadharCard.class)
 	public ResponseEntity<?> createAadharCardResource(@Valid @RequestBody AadharCard aadharCard,
 			BindingResult bindingResult) {
 		logger.info("************Begening of Creating Resource for AadharCard*************************");
@@ -55,41 +55,61 @@ public class AadharCardController {
 		}
 		AadharCard aadharCardToDB = aadharCardService.saveAadharCardDetails(aadharCard);
 		System.out.println(aadharCardToDB);
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(aadharCardToDB);
 		logger.info("************End of Creating AadharCard Resource***********************", aadharCardToDB);
-		return new ResponseEntity<AadharCard>(aadharCardToDB, HttpStatus.CREATED);
+		return new ResponseEntity<String>(gsonString, HttpStatus.CREATED);
 
 	}
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "/get", notes = "Retreive All AadharCard's Resource", response = AadharCard.class, responseContainer = "LIST")
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Retrieve All AadharCards Details", notes = "Retreive All AadharCard's Resource", response = AadharCard.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllAaadharCardDetails() {
 		List<AadharCard> listOfAadharCard = aadharCardService.getAllAadhars();
 		if (listOfAadharCard == null || listOfAadharCard.size() == 0) {
 			return new ResponseEntity<String>("Sorry No Data Found", HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<List<AadharCard>>(listOfAadharCard, HttpStatus.OK);
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(listOfAadharCard);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
-	// @RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces =
-	// "application/json")
-	// @ResponseBody
-	@GetMapping(path = "/get/{id}")
-	@ApiOperation(value = "/get/", notes = "Retrieve AadharCard Details By ID", response = AadharCard.class)
+	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Retrieve AadharData By ID", notes = "Retrieve AadharCard Details By ID", response = AadharCard.class)
 	public ResponseEntity<?> getAadharCardDetailsByID(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 		AadharCard aadharCard = aadharCardService.getAadharCardById(id);
 		if (aadharCard == null) {
 			return new ResponseEntity<String>("No Value Retrieved For This ID", HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<AadharCard>(aadharCard, HttpStatus.OK);
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(gson);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "text/plain")
 	@ResponseBody
-	@ApiOperation(value = "/delete", notes = "Delete AadharCard By Id", response = String.class)
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Remove AadharCard Resource From DB", notes = "Delete AadharCard By Id", response = String.class)
 	public ResponseEntity<?> deleteAadharCardById(@PathVariable(value = "id") Long id) {
+
+		ResponseEntity<?> responseString = getAadharCardDetailsByID(id);
+		String stringResponse = (String) responseString.getBody();
+		if (stringResponse.equals("No Value Retrieved For This ID")) {
+			return new ResponseEntity<String>("No Data Available For This ID:-" + id, HttpStatus.BAD_REQUEST);
+		}
+
+		AadharCard aadharCard = new Gson().fromJson(stringResponse, AadharCard.class);
+		logger.info("Printing AadharCardDetails" + aadharCard);
 		String response = aadharCardService.deleteAadharCardById(id);
+		if (response == null) {
+			return new ResponseEntity<String>("Sorry Remove The Resource", HttpStatus.BAD_REQUEST);
+		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
 }
