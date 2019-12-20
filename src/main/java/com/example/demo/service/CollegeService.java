@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.cloudsearchv2.model.BaseException;
 import com.example.demo.beans.College;
+import com.example.demo.exception.BaseException;
 import com.example.demo.repository.CollegeRepository;
 
 @Service
@@ -23,8 +23,12 @@ public class CollegeService {
 		try {
 
 			College collegeToDB = collegeRepo.save(college);
+			if (collegeToDB == null) {
+				throw new BaseException("Sorry Could Persist Data To The DB");
+			}
 			return collegeToDB;
 		} catch (final BaseException ex) {
+			logger.error("******************SaveData************************");
 			throw new BaseException("Sorry Could Not Persist Data In DB");
 		}
 	}
@@ -37,6 +41,7 @@ public class CollegeService {
 			}
 			return college;
 		} catch (final BaseException ex) {
+			logger.error("**************Inside getCollegeByID********************");
 			throw new BaseException(ex.getMessage());
 		}
 	}
@@ -45,8 +50,23 @@ public class CollegeService {
 		// TODO Auto-generated method stub
 		try {
 			List<College> collegeList = collegeRepo.getAllCollege();
+			if (collegeList == null || collegeList.size() == 0) {
+				throw new BaseException("Could Not Retrieve College Data From The DB");
+			}
 			return collegeList;
 		} catch (final RuntimeException ex) {
+			logger.error("****************Inside getAllCollegeDetails*******************");
+			throw new RuntimeException(ex.getMessage());
+		}
+	}
+
+	public String deleteCollegeByID(Long id) {
+		// TODO Auto-generated method stub
+		try {
+			collegeRepo.deleteCollegeByID(id);
+			return "Successfully Deleted";
+		} catch (final Exception ex) {
+			logger.error("*****************Inside DeleteCollege Method*********************");
 			throw new RuntimeException(ex.getMessage());
 		}
 	}

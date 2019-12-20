@@ -1,11 +1,18 @@
 package com.example.demo.beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
@@ -19,6 +26,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -79,6 +88,47 @@ public class Person extends BaseEntity implements Serializable {
 	@ApiModelProperty(notes = "basicDetails")
 	@Type(type = "BasicDetails")
 	private BasicDetails basicDetials;
+
+	// Person - AadharCard OneToOne Mapping
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "person", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("person")
+	@Column(name = "aadhar_card_no")
+	private AadharCard aadharCard;
+
+	// Person - Son One To Many
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "sonId")
+	@JsonIgnoreProperties("son")
+	private List<Son> son = new ArrayList<Son>();
+
+	// Person - Daughter One To Many
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "daughterId")
+	@JsonIgnoreProperties("daughter")
+	private List<Daughter> daughter = new ArrayList<Daughter>();
+
+	public AadharCard getAadharCard() {
+		return aadharCard;
+	}
+
+	public void setAadharCard(AadharCard aadharCard) {
+		this.aadharCard = aadharCard;
+	}
+
+	public List<Son> getSon() {
+		return son;
+	}
+
+	public void setSon(List<Son> son) {
+		this.son = son;
+	}
+
+	public List<Daughter> getDaughter() {
+		return daughter;
+	}
+
+	public void setDaughter(List<Daughter> daughter) {
+		this.daughter = daughter;
+	}
 
 	public Person() {
 		super();

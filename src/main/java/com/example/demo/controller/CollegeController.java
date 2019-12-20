@@ -82,6 +82,28 @@ public class CollegeController {
 		Gson gson = new Gson();
 		String stringGson = gson.toJson(collegeList);
 		return new ResponseEntity<String>(stringGson, HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "text/plain")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Delete College Resource From DB", notes = "Crud Operation", response = String.class)
+	public ResponseEntity<?> deleteCollegeById(
+			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
+
+		ResponseEntity<?> stringResponse = getCollegeByID(id);
+		String responseString = (String) stringResponse.getBody();
+		if (responseString.equals("Sorry Could Not Found Data")) {
+			return new ResponseEntity<String>("Sorry No Data Found", HttpStatus.BAD_REQUEST);
+		}
+		College college = new Gson().fromJson(responseString, College.class);
+		logger.info("College Object :-" + college);
+
+		String result = collegeService.deleteCollegeByID(id);
+		if (result == null) {
+			return new ResponseEntity<String>("Sorry Could Not Delete The College Object", HttpStatus.OK);
+		}
+		return new ResponseEntity<String>(result, HttpStatus.OK);
 
 	}
 

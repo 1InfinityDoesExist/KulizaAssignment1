@@ -3,9 +3,13 @@ package com.example.demo.beans;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
@@ -15,6 +19,8 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -50,6 +56,20 @@ public class Son extends BaseEntity implements Serializable {
 	@NotEmpty(message = "PhoneNumber Must Not Be Empty")
 	@ApiModelProperty(notes = "Phone Number Of The Person")
 	private String phoneNumber;
+
+	// Son - Person One To Many Operation
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "sonId", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("person")
+	private Person person;
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
 
 	public Son() {
 		super();
