@@ -10,7 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -90,20 +89,18 @@ public class Person extends BaseEntity implements Serializable {
 	private BasicDetails basicDetials;
 
 	// Person - AadharCard OneToOne Mapping
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "person", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH }, orphanRemoval = true, mappedBy = "person")
 	@JsonIgnoreProperties("person")
-	@Column(name = "aadhar_card_no")
 	private AadharCard aadharCard;
 
 	// Person - Son One To Many
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "sonId")
-	@JsonIgnoreProperties("son")
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH }, orphanRemoval = true, mappedBy = "person")
+	@JsonIgnoreProperties("person")
 	private List<Son> son = new ArrayList<Son>();
 
 	// Person - Daughter One To Many
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "daughterId")
-	@JsonIgnoreProperties("daughter")
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "person")
+	@JsonIgnoreProperties("person")
 	private List<Daughter> daughter = new ArrayList<Daughter>();
 
 	public AadharCard getAadharCard() {

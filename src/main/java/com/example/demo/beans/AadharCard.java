@@ -7,7 +7,6 @@ import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -96,10 +95,22 @@ public class AadharCard extends BaseEntity implements Serializable {
 	private String gender;
 
 	// AadharCard -Person One to One Mapping
-	@OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.ALL }, orphanRemoval = true)
-	@JoinColumn(name = "person_id")
+	@OneToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "person_id", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
 	@JsonIgnoreProperties("aadharCard")
 	private Person person;
+
+	// aadharCard Son
+	@OneToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "son_id", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("aadharCard")
+	private Son son;
+
+	// aadharCard Daughter
+	@OneToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "daughter_id", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("aadharCard")
+	private Daughter daughter;
 
 	public Person getPerson() {
 		return person;

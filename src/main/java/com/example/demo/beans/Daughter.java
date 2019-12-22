@@ -1,11 +1,15 @@
 package com.example.demo.beans;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
@@ -16,6 +20,8 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -25,7 +31,7 @@ import io.swagger.annotations.ApiModelProperty;
 @EntityListeners(AuditingEntityListener.class)
 @TypeDefs({ @TypeDef(name = "AddressType", typeClass = AddressType.class),
 		@TypeDef(name = "BasicDetailsType", typeClass = BasicDetailsType.class),
-		@TypeDef(name = "AadharCardDetailsType", typeClass = AadharCardDetailsType.class),
+
 		@TypeDef(name = "PanCardDetailsType", typeClass = PanCardDetailsType.class) })
 public class Daughter extends BaseEntity implements Serializable {
 
@@ -38,11 +44,6 @@ public class Daughter extends BaseEntity implements Serializable {
 	@Column(name = "is_single")
 	@ApiModelProperty(notes = "Nulla Hey Ke Nahi")
 	private Boolean isSingle;
-
-	@Column(name = "aadhar_card", columnDefinition = "jsonb")
-	@ApiModelProperty(notes = "AadharCard Details of the Daughter")
-	@Type(type = "AadharCardDetailsType")
-	private AadharCard aadharCard;
 
 	@Column(name = "panCard", columnDefinition = "jsonb")
 	@ApiModelProperty(notes = "PanCard Details of the Daughter")
@@ -67,24 +68,45 @@ public class Daughter extends BaseEntity implements Serializable {
 	@ApiModelProperty(notes = "Basic Detials of the Daughter")
 	private BasicDetails basicDetails;
 
+	// person - daughter
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "person_id", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("daughter")
+	private Person person;
+
+	// daughter - aadharCard
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "daughter")
+	@JsonIgnoreProperties("daughter")
+	private AadharCard aadharCard;
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	public AadharCard getAadharCard() {
+		return aadharCard;
+	}
+
+	public void setAadharCard(AadharCard aadharCard) {
+		this.aadharCard = aadharCard;
+	}
+
 	public Daughter() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Daughter(Long id, LocalDateTime creationDate, LocalDateTime modificationDate, Boolean isDeleted) {
-		super(id, creationDate, modificationDate, isDeleted);
-		// TODO Auto-generated constructor stub
-	}
-
 	public Daughter(
 			@NotBlank(message = "Mobile Number Must Not Be Blank, Mandatory Field") @NotEmpty(message = "Mobile Number Must Not Be Empty, Mandatory Field") String mobileNumber,
-			Boolean isSingle, AadharCard aadharCard, PanCard panCard, String petName, String hasPet, Address address,
+			Boolean isSingle, PanCard panCard, String petName, String hasPet, Address address,
 			BasicDetails basicDetails) {
 		super();
 		this.mobileNumber = mobileNumber;
 		this.isSingle = isSingle;
-		this.aadharCard = aadharCard;
 		this.panCard = panCard;
 		this.petName = petName;
 		this.hasPet = hasPet;
@@ -106,14 +128,6 @@ public class Daughter extends BaseEntity implements Serializable {
 
 	public void setIsSingle(Boolean isSingle) {
 		this.isSingle = isSingle;
-	}
-
-	public AadharCard getAadharCard() {
-		return aadharCard;
-	}
-
-	public void setAadharCard(AadharCard aadharCard) {
-		this.aadharCard = aadharCard;
 	}
 
 	public PanCard getPanCard() {
@@ -165,6 +179,7 @@ public class Daughter extends BaseEntity implements Serializable {
 		result = prime * result + ((hasPet == null) ? 0 : hasPet.hashCode());
 		result = prime * result + ((isSingle == null) ? 0 : isSingle.hashCode());
 		result = prime * result + ((mobileNumber == null) ? 0 : mobileNumber.hashCode());
+		result = prime * result + ((panCard == null) ? 0 : panCard.hashCode());
 		result = prime * result + ((petName == null) ? 0 : petName.hashCode());
 		return result;
 	}
@@ -203,6 +218,11 @@ public class Daughter extends BaseEntity implements Serializable {
 				return false;
 		} else if (!mobileNumber.equals(other.mobileNumber))
 			return false;
+		if (panCard == null) {
+			if (other.panCard != null)
+				return false;
+		} else if (!panCard.equals(other.panCard))
+			return false;
 		if (petName == null) {
 			if (other.petName != null)
 				return false;
@@ -213,8 +233,9 @@ public class Daughter extends BaseEntity implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Daughter [mobileNumber=" + mobileNumber + ", isSingle=" + isSingle + ", petName=" + petName
-				+ ", hasPet=" + hasPet + ", address=" + address + ", basicDetails=" + basicDetails + "]";
+		return "Daughter [mobileNumber=" + mobileNumber + ", isSingle=" + isSingle + ", panCard=" + panCard
+				+ ", petName=" + petName + ", hasPet=" + hasPet + ", address=" + address + ", basicDetails="
+				+ basicDetails + "]";
 	}
 
 }

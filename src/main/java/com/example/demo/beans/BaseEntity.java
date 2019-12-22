@@ -24,7 +24,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class BaseEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "s.n")
+	@Column(name = "id")
 	@ApiModelProperty(notes = "Primary Key")
 	private Long id;
 

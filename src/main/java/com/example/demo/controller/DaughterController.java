@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.beans.Daughter;
 import com.example.demo.service.DaughterService;
 import com.example.demo.service.MapStateToError;
+import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,36 +42,61 @@ public class DaughterController {
 
 	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "/create", notes = "Create Daughter Resource", response = Daughter.class)
+	@ResponseStatus(HttpStatus.CREATED)
+	@ApiOperation(value = "Daughter Crud Operations", notes = "Create Daughter Resource", response = Daughter.class)
 	public ResponseEntity<?> createDaughter(@Valid @RequestBody Daughter daughter, BindingResult bindingResult) {
 		ResponseEntity<?> errorMap = mapStateToError.mapStateToError(bindingResult);
 		if (errorMap != null) {
 			return errorMap;
 		}
 		Daughter daughterToDB = daughterService.saveDaughterDetails(daughter);
-		return new ResponseEntity<Daughter>(daughterToDB, HttpStatus.CREATED);
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(daughterToDB);
+
+		return new ResponseEntity<String>(gsonString, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	public ResponseEntity<?> getDaughterById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 
 		Daughter daughter = daughterService.getDaughterByID(id);
-		return new ResponseEntity<Daughter>(daughter, HttpStatus.OK);
+		if (daughter == null) {
+			return new ResponseEntity<String>("No Data Available For This ID", HttpStatus.BAD_REQUEST);
+		}
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(daughter);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "/get", notes = "Retrieve Daughter", response = Daughter.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllDaughter() {
 		List<Daughter> daughterList = daughterService.getAllDaughter();
-		return new ResponseEntity<List<Daughter>>(daughterList, HttpStatus.OK);
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(daughterList);
+
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/delete/{id} ", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/delete/{id} ", method = RequestMethod.DELETE, produces = "text/plain")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Remove Resource From The", notes = "RemoveResources From The DB", response = String.class)
 	public ResponseEntity<?> deleteDaughterById(@PathVariable(value = "id") Long id) {
-		String response = daughterService.deleteDaughter(id);
-		return new ResponseEntity<String>(response, HttpStatus.OK);
+
+		ResponseEntity<?> response = getDaughterById(id);
+		String responseString = (String) response.getBody();
+		if (responseString.equals("No Data Available For This ID")) {
+			return new ResponseEntity<String>("Sorry No Data Found For The ID:" + id, HttpStatus.BAD_REQUEST);
+		}
+		Daughter dg = new Gson().fromJson(responseString, Daughter.class);
+		logger.info("Daughter Object: " + dg);
+		String str = daughterService.deleteDaughter(id);
+		return new ResponseEntity<String>(str, HttpStatus.OK);
 	}
 }

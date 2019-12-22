@@ -10,6 +10,7 @@ import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotBlank;
@@ -58,10 +59,15 @@ public class Son extends BaseEntity implements Serializable {
 	private String phoneNumber;
 
 	// Son - Person One To Many Operation
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "sonId", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
-	@JsonIgnoreProperties("person")
+	@ManyToOne(cascade = CascadeType.MERGE)
+	@JoinColumn(name = "son_id", columnDefinition = "bigint", referencedColumnName = "id", nullable = false)
+	@JsonIgnoreProperties("son")
 	private Person person;
+
+	// son - aaharCard one to one mapping
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH, orphanRemoval = true, mappedBy = "son")
+	@JsonIgnoreProperties("son")
+	private AadharCard aadharCard;
 
 	public Person getPerson() {
 		return person;
@@ -69,6 +75,14 @@ public class Son extends BaseEntity implements Serializable {
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+
+	public AadharCard getAadharCard() {
+		return aadharCard;
+	}
+
+	public void setAadharCard(AadharCard aadharCard) {
+		this.aadharCard = aadharCard;
 	}
 
 	public Son() {
