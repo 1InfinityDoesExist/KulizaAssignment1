@@ -19,7 +19,6 @@ public class AadharCardService {
 	@Autowired
 	private AadharCardRepository aadharCardRepository;
 
-	
 	public AadharCard saveAadharCardDetails(AadharCard aadharCard) {
 		try {
 			AadharCard aadharCardToDB = aadharCardRepository.save(aadharCard);
@@ -60,6 +59,11 @@ public class AadharCardService {
 			logger.error("***********Could Not Delete AadharCardDetials By Id*************");
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
+	}
+
+	public AadharCard updateAadharCard(String aadharCard, Long id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

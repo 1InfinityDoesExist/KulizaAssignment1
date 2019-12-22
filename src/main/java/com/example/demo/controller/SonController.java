@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,5 +111,22 @@ public class SonController {
 			return new ResponseEntity<String>("Sorry id:-" + id + " Could Not Be Deleted", HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ApiOperation(value = "/update/{id}", notes = "Partial Update of The Son", response = Son.class)
+	public ResponseEntity<?> updaeSon(@RequestBody String son, @PathVariable(value = "id") Long id)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParseException {
+		Son sonFromDB = sonService.updateSonByID(son, id);
+		if (sonFromDB == null) {
+			return new ResponseEntity<String>("Sorry No Son Found For This ID:" + id, HttpStatus.BAD_REQUEST);
+		}
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(sonFromDB);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
+
 	}
 }

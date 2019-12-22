@@ -112,4 +112,21 @@ public class AadharCardController {
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
 	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update AadharCard  Resource", notes = "Partial Update of AadharCard", response = AadharCard.class)
+	public ResponseEntity<?> updateAadharCard(@RequestBody String aadharCard, @PathVariable(value = "id") Long id) {
+
+		AadharCard aadharCardFromDB = aadharCardService.updateAadharCard(aadharCard, id);
+		if (aadharCardFromDB == null) {
+			return new ResponseEntity<String>("Sorry Coudl Not Update The AadharCard Details", HttpStatus.BAD_REQUEST);
+		}
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(aadharCardFromDB);
+		return new ResponseEntity<String>(gsonString, HttpStatus.BAD_REQUEST);
+
+	}
 }
