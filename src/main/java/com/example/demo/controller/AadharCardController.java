@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.beans.AadharCard;
 import com.example.demo.service.AadharCardService;
 import com.example.demo.service.MapStateToError;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
@@ -117,7 +122,9 @@ public class AadharCardController {
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Update AadharCard  Resource", notes = "Partial Update of AadharCard", response = AadharCard.class)
-	public ResponseEntity<?> updateAadharCard(@RequestBody String aadharCard, @PathVariable(value = "id") Long id) {
+	public ResponseEntity<?> updateAadharCard(@RequestBody String aadharCard, @PathVariable(value = "id") Long id)
+			throws JsonParseException, JsonMappingException, IOException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, ParseException {
 
 		AadharCard aadharCardFromDB = aadharCardService.updateAadharCard(aadharCard, id);
 		if (aadharCardFromDB == null) {

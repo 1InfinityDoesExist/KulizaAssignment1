@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.beans.PanCard;
 import com.example.demo.service.MapStateToError;
 import com.example.demo.service.PanCardService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
@@ -41,6 +47,7 @@ public class PanCardController {
 
 	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.CREATED)
 	@ApiOperation(value = "Create PanCard Resource", notes = "Create Pan Resource", response = PanCard.class)
 	public ResponseEntity<?> createPan(@Valid @RequestBody PanCard panCard, BindingResult bindingResult) {
 		ResponseEntity<?> errorMap = mapStateToError.mapStateToError(bindingResult);
@@ -55,6 +62,7 @@ public class PanCardController {
 
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Retrieve PanCard Resource", notes = "Retrieve Pan", response = PanCard.class)
 	public ResponseEntity<?> getPanCardByID(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
@@ -69,6 +77,7 @@ public class PanCardController {
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Retrieve All PanCard Resource From DB", notes = "Retrieve All Pan Card Details", response = PanCard.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllPanCard() {
 		List<PanCard> panCardList = panCardService.getAllPanCardDetails();
@@ -83,6 +92,7 @@ public class PanCardController {
 
 	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "text/plain")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Remove Resource Of PanCard From The DB", notes = "Remove PanCard Resource", response = String.class)
 	public ResponseEntity<?> deletePanById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
@@ -97,5 +107,22 @@ public class PanCardController {
 			return new ResponseEntity<String>("Sorry Could Not Found Data For This ID:", HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update PanCard Resource", notes = "Its A Partial Update", response = PanCard.class)
+	public ResponseEntity<?> updatePanCardByID(@RequestBody String panCard, @PathVariable(value = "id") Long id)
+			throws JsonParseException, JsonMappingException, IOException, ParseException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+		PanCard updatedPanCard = panCardService.updatePanCard(panCard, id);
+		if (updatedPanCard == null) {
+			return new ResponseEntity<String>("Sorry Could Not Update The PanCard By ID" + id, HttpStatus.OK);
+		}
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(updatedPanCard);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
+
 	}
 }
