@@ -32,6 +32,7 @@ public class ReflectionUtil {
 	private static HashMap<String, String> objectBeanMap = new HashMap<String, String>() {
 		{
 			put("College", "com.example.demo.beans.College");
+			put("Person", "com.example.demo.beans.Person");
 		}
 	};
 

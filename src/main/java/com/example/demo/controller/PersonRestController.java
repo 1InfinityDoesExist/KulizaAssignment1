@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.beans.Person;
 import com.example.demo.service.MapStateToError;
 import com.example.demo.service.PersonService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -91,7 +97,7 @@ public class PersonRestController {
 	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "plain/text")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value = "Remove Son Resource From DB Using ID", notes = "Id Is Mandatory", response = String.class)
+	@ApiOperation(value = "Remove Person Resource From DB Using ID", notes = "Id Is Mandatory", response = String.class)
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "SuccessFully Deleted"),
 			@ApiResponse(code = 400, message = "In Case Son Resources Could Not Be Deleted") })
 	public ResponseEntity<?> deletePersonByID(
@@ -111,6 +117,24 @@ public class PersonRestController {
 			return new ResponseEntity<String>("Sorry No Data Exist For This Id", HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<String>(response, HttpStatus.OK);
+	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update Person Resource", notes = "Its A Parital Udate", response = Person.class)
+	public ResponseEntity<?> updatePerson(@RequestBody String person, @PathVariable(value = "id") Long id)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParseException,
+			JsonParseException, JsonMappingException, IOException {
+
+		Person personFromDB = personService.updatePerson(person, id);
+		if (personFromDB == null) {
+			return new ResponseEntity<String>("Sorry Could Not Update Person Resource From DB", HttpStatus.BAD_GATEWAY);
+		}
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(personFromDB);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
 }
