@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +107,23 @@ public class CollegeController {
 		}
 		return new ResponseEntity<String>(result, HttpStatus.OK);
 
+	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update College Resource", notes = "This Is Just A Partial Update", response = College.class)
+	public ResponseEntity<?> updateCollege(@RequestBody String college, @PathVariable(value = "id") Long id)
+			throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, ParseException {
+
+		College collegeFromDB = collegeService.updateCollege(college, id);
+		if (collegeFromDB == null) {
+			return new ResponseEntity<String>("Sorry Could Not Update College Resource", HttpStatus.BAD_REQUEST);
+		}
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(collegeFromDB);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
 }
