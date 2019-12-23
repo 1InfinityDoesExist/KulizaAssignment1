@@ -33,6 +33,10 @@ public class ReflectionUtil {
 		{
 			put("College", "com.example.demo.beans.College");
 			put("Person", "com.example.demo.beans.Person");
+			put("Son", "com.example.demo.beans.Son");
+			put("Daughter", "com.example.demo.beans.Daughter");
+			put("PanCard", "com.example.demo.beans.PanCard");
+			put("AadharCard", "com.example.demo.beans.AadharCard");
 		}
 	};
 

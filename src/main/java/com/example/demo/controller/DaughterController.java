@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.beans.Daughter;
 import com.example.demo.service.DaughterService;
 import com.example.demo.service.MapStateToError;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
@@ -99,4 +104,22 @@ public class DaughterController {
 		String str = daughterService.deleteDaughter(id);
 		return new ResponseEntity<String>(str, HttpStatus.OK);
 	}
+
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update Daughter Resource", notes = "Update Daughter Resource", response = Daughter.class)
+	public ResponseEntity<?> updateDaughter(@RequestBody String daughter, @PathVariable(value = "id") Long id)
+			throws JsonParseException, JsonMappingException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException, ParseException {
+		logger.info("Inside the Daughter Update Method");
+		Daughter updatedDaughter = daughterService.updateDaughterDetails(daughter, id);
+		if (updatedDaughter == null) {
+			logger.error("Inside if Condition of Dauther Ojbect ");
+			return new ResponseEntity<String>("Sorry No Daughter Details Found", HttpStatus.BAD_REQUEST);
+		}
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(updatedDaughter);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
+	}
+
 }
