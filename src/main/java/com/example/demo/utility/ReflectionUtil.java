@@ -88,7 +88,7 @@ public class ReflectionUtil {
 		return (Method) propMethod.get(propName);
 	}
 
-	public Method setGetterMethod(String objectName, String propName) {
+	public Method getGetterMethod(String objectName, String propName) {
 		HashMap propMethod = getObjGetterPropsMap().get(objectName);
 		return (Method) propMethod.get(propName);
 	}
