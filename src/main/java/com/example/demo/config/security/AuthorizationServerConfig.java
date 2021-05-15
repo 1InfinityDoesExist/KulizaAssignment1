@@ -1,4 +1,4 @@
-package com.example.demo.security.config;
+package com.example.demo.config.security;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
